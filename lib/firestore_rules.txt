@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users: owner only
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Orders: owner can read their own, only auth users can create
+    match /orders/{orderId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null
+        && resource.data.uid == request.auth.uid;
+    }
+  }
+}
